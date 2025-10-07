@@ -1,9 +1,13 @@
 const { Router } = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { OAuth2Client } = require("google-auth-library");
 const User = require("../src/models/User");
 
 const router = Router();
+
+// Initialize Google OAuth client
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 function signToken(userId) {
   const secret = process.env.JWT_SECRET || "fallback-secret-key-for-dev";
@@ -59,6 +63,56 @@ router.post("/login", async (req, res, next) => {
     res.json({ token, user: { _id: user._id, email: user.email } });
   } catch (err) {
     next(err);
+  }
+});
+
+// POST /api/auth/google
+router.post("/google", async (req, res, next) => {
+  try {
+    const { credential } = req.body;
+    if (!credential) {
+      return res.status(400).json({ message: "Google credential required" });
+    }
+
+    // Verify the Google ID token
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    if (!payload) {
+      return res.status(401).json({ message: "Invalid Google credential" });
+    }
+
+    const { email, name, picture } = payload;
+
+    // Check if user exists, if not create one
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = await User.create({
+        email,
+        name: name || email.split("@")[0],
+        googleId: payload.sub,
+        profilePicture: picture,
+        // No password hash for Google users
+        passwordHash: null,
+      });
+    }
+
+    const token = signToken(user._id.toString());
+    res.json({
+      token,
+      user: {
+        _id: user._id,
+        email: user.email,
+        name: user.name,
+        profilePicture: user.profilePicture,
+      },
+    });
+  } catch (err) {
+    console.error("Google OAuth error:", err);
+    res.status(401).json({ message: "Invalid Google credential" });
   }
 });
 

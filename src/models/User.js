@@ -11,7 +11,21 @@ const userSchema = new mongoose.Schema(
     },
     passwordHash: {
       type: String,
-      required: true,
+      required: false, // Not required for Google OAuth users
+    },
+    name: {
+      type: String,
+      required: false,
+    },
+    googleId: {
+      type: String,
+      required: false,
+      unique: true,
+      sparse: true, // Allows null values while maintaining uniqueness for non-null values
+    },
+    profilePicture: {
+      type: String,
+      required: false,
     },
   },
   {
@@ -22,4 +36,3 @@ const userSchema = new mongoose.Schema(
 const User = mongoose.model("User", userSchema);
 
 module.exports = User;
-
