@@ -21,6 +21,12 @@ const productSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    category: {
+      type: String,
+      required: true,
+      enum: ["polo", "jean", "somi", "thun", "other"],
+      default: "other",
+    },
   },
   {
     timestamps: true, // Tự động thêm createdAt và updatedAt

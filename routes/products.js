@@ -47,8 +47,8 @@ router.get("/:id", async (req, res, next) => {
 // POST /api/products – Create a new product (protected)
 router.post("/", async (req, res, next) => {
   try {
-    const { name, description, price, image } = req.body;
-    console.log("📝 Creating product:", { name, description, price, image });
+    const { name, description, price, image, category } = req.body;
+    console.log("📝 Creating product:", { name, description, price, image, category });
 
     if (!name || !description || typeof price !== "number") {
       return res
@@ -61,6 +61,7 @@ router.post("/", async (req, res, next) => {
       description,
       price,
       image: image || null,
+      category: category || "other",
     });
 
     const savedProduct = await product.save();
@@ -74,9 +75,9 @@ router.post("/", async (req, res, next) => {
 // PUT /api/products/:id – Update a product (protected)
 router.put("/:id", async (req, res, next) => {
   try {
-    const { name, description, price, image } = req.body;
+    const { name, description, price, image, category } = req.body;
     console.log("🔄 Updating product ID:", req.params.id);
-    console.log("🔄 Update data:", { name, description, price, image });
+    console.log("🔄 Update data:", { name, description, price, image, category });
 
     if (!name || !description || typeof price !== "number") {
       return res
@@ -90,9 +91,21 @@ router.put("/:id", async (req, res, next) => {
       return res.status(404).json({ message: "Invalid product ID" });
     }
 
+    console.log("🔍 Category value received:", category, "Type:", typeof category);
+    
+    const updateData = { 
+      name, 
+      description, 
+      price, 
+      image: image || null, 
+      category: category || "other" 
+    };
+    
+    console.log("📝 Update data object:", updateData);
+    
     const product = await Product.findByIdAndUpdate(
       req.params.id,
-      { name, description, price, image: image || null },
+      updateData,
       { new: true, runValidators: true }
     );
 
@@ -105,8 +118,14 @@ router.put("/:id", async (req, res, next) => {
     res.json(product);
   } catch (err) {
     console.error("❌ Update error:", err);
+    console.error("❌ Error name:", err.name);
+    console.error("❌ Error message:", err.message);
     if (err.name === "CastError") {
       return res.status(404).json({ message: "Product not found" });
+    }
+    if (err.name === "ValidationError") {
+      console.error("❌ Validation errors:", err.errors);
+      return res.status(400).json({ message: err.message, errors: err.errors });
     }
     next(err);
   }
