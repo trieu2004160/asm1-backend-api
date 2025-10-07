@@ -48,7 +48,13 @@ router.get("/:id", async (req, res, next) => {
 router.post("/", async (req, res, next) => {
   try {
     const { name, description, price, image, category } = req.body;
-    console.log("📝 Creating product:", { name, description, price, image, category });
+    console.log("📝 Creating product:", {
+      name,
+      description,
+      price,
+      image,
+      category,
+    });
 
     if (!name || !description || typeof price !== "number") {
       return res
@@ -77,7 +83,13 @@ router.put("/:id", async (req, res, next) => {
   try {
     const { name, description, price, image, category } = req.body;
     console.log("🔄 Updating product ID:", req.params.id);
-    console.log("🔄 Update data:", { name, description, price, image, category });
+    console.log("🔄 Update data:", {
+      name,
+      description,
+      price,
+      image,
+      category,
+    });
 
     if (!name || !description || typeof price !== "number") {
       return res
@@ -91,23 +103,27 @@ router.put("/:id", async (req, res, next) => {
       return res.status(404).json({ message: "Invalid product ID" });
     }
 
-    console.log("🔍 Category value received:", category, "Type:", typeof category);
-    
-    const updateData = { 
-      name, 
-      description, 
-      price, 
-      image: image || null, 
-      category: category || "other" 
-    };
-    
-    console.log("📝 Update data object:", updateData);
-    
-    const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      { new: true, runValidators: true }
+    console.log(
+      "🔍 Category value received:",
+      category,
+      "Type:",
+      typeof category
     );
+
+    const updateData = {
+      name,
+      description,
+      price,
+      image: image || null,
+      category: category || "other",
+    };
+
+    console.log("📝 Update data object:", updateData);
+
+    const product = await Product.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!product) {
       console.log("❌ Product not found for ID:", req.params.id);
