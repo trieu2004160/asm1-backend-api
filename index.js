@@ -6,6 +6,7 @@ const cors = require("cors");
 const { initDb } = require("./lib/db");
 const productsRouter = require("./routes/products");
 const authRouter = require("./routes/auth");
+const ordersRouter = require("./routes/orders");
 
 const app = express();
 app.use(cors());
@@ -28,6 +29,7 @@ app.get("/api/health", (_req, res) => {
 
 app.use("/api/products", productsRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/orders", ordersRouter);
 
 // Global error handler
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

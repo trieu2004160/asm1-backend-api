@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const Product = require("../src/models/Product");
-// const auth = require("../middleware/auth"); // Temporarily disabled for testing
+const auth = require("../middleware/auth");
 
 const router = Router();
 
@@ -45,7 +45,7 @@ router.get("/:id", async (req, res, next) => {
 });
 
 // POST /api/products – Create a new product (protected)
-router.post("/", async (req, res, next) => {
+router.post("/", auth, async (req, res, next) => {
   try {
     const { name, description, price, image, category } = req.body;
     console.log("📝 Creating product:", {
@@ -79,7 +79,7 @@ router.post("/", async (req, res, next) => {
 });
 
 // PUT /api/products/:id – Update a product (protected)
-router.put("/:id", async (req, res, next) => {
+router.put("/:id", auth, async (req, res, next) => {
   try {
     const { name, description, price, image, category } = req.body;
     console.log("🔄 Updating product ID:", req.params.id);
@@ -148,7 +148,7 @@ router.put("/:id", async (req, res, next) => {
 });
 
 // DELETE /api/products/:id – Delete a product (protected)
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:id", auth, async (req, res, next) => {
   try {
     console.log("🗑️ Deleting product ID:", req.params.id);
 
