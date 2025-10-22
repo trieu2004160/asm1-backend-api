@@ -115,9 +115,9 @@ router.post("/", auth, async (req, res, next) => {
     };
 
     if (paymentMethod === "cash_on_delivery") {
-      // COD: Mark as paid and set cancellation deadline to 24 hours
-      console.log("📦 Creating COD order with paid status and 24h cancellation window");
-      orderData.status = "paid";
+      // COD: Mark as confirmed (order successful) and set cancellation deadline to 24 hours
+      console.log("📦 Creating COD order with confirmed status and 24h cancellation window");
+      orderData.status = "confirmed";
       orderData.cancelableUntil = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours from now
     } else {
       // Online payment: Mark as pending until payment is completed
@@ -129,7 +129,7 @@ router.post("/", auth, async (req, res, next) => {
 
     console.log("💾 Saving order to database...");
     const savedOrder = await order.save();
-    console.log("✅ Order saved with status: paid, ID:", savedOrder._id);
+    console.log("✅ Order saved with status:", orderData.status, "ID:", savedOrder._id);
 
     // Populate the response
     const populatedOrder = await Order.findById(savedOrder._id).populate(
@@ -430,8 +430,8 @@ router.post("/payos", auth, async (req, res, next) => {
             quantity: product.quantity,
             price: product.price,
           })),
-          returnUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/payment/${savedOrder._id}?payment=success`,
-          cancelUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/payment/${savedOrder._id}?payment=cancelled`,
+          returnUrl: `${process.env.FRONTEND_URL || 'http://localhost:8081'}/payment/${savedOrder._id}?payment=success`,
+          cancelUrl: `${process.env.FRONTEND_URL || 'http://localhost:8081'}/payment/${savedOrder._id}?payment=cancelled`,
         };
         
         console.log("🎭 Mock order data:", JSON.stringify(mockOrderData, null, 2));
@@ -444,7 +444,7 @@ router.post("/payos", auth, async (req, res, next) => {
         console.error("❌ MockPayOS stack:", mockError.stack);
         
         // Final fallback: create a placeholder payment URL
-        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:8081';
         paymentResult = {
           success: true,
           checkoutUrl: `${frontendUrl}/mock-payment/${savedOrder._id}?amount=${totalAmount}`,
