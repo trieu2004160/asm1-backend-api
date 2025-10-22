@@ -417,6 +417,8 @@ router.post("/payos", auth, async (req, res, next) => {
       
       try {
         const mockPayOS = new MockPayOS();
+        console.log("🎭 Creating MockPayOS payment link for order:", savedOrder._id);
+        
         paymentResult = await mockPayOS.createPaymentLink({
           orderCode: savedOrder._id, // Use real order ID for mock payment
           amount: totalAmount,
@@ -433,15 +435,17 @@ router.post("/payos", auth, async (req, res, next) => {
         console.log("✅ MockPayOS payment link created:", paymentResult.checkoutUrl);
       } catch (mockError) {
         console.error("❌ MockPayOS error:", mockError.message);
+        console.error("❌ MockPayOS stack:", mockError.stack);
         
         // Final fallback: create a placeholder payment URL
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
         paymentResult = {
           success: true,
-          checkoutUrl: `https://mock-payos.vn/payment/${savedOrder._id}?amount=${totalAmount}&mock=true`,
+          checkoutUrl: `${frontendUrl}/mock-payment/${savedOrder._id}?amount=${totalAmount}&mock=true`,
           orderCode: `mock_${savedOrder._id}`,
         };
         useMockPayOS = true;
-        console.log("⚠️ Using final fallback payment URL");
+        console.log("⚠️ Using final fallback payment URL:", paymentResult.checkoutUrl);
       }
     }
     
