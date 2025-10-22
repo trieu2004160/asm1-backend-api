@@ -422,9 +422,9 @@ router.post("/payos", auth, async (req, res, next) => {
         console.log("🎭 Total amount:", totalAmount);
         
         const mockOrderData = {
-          orderCode: savedOrder._id, // Use real order ID for mock payment
+          orderCode: String(savedOrder._id), // Convert ObjectId to string
           amount: totalAmount,
-          description: `Đơn hàng #${savedOrder._id.slice(-8)} - ${validatedProducts.length} sản phẩm`,
+          description: `Đơn hàng #${String(savedOrder._id).slice(-8)} - ${validatedProducts.length} sản phẩm`,
           items: validatedProducts.map(product => ({
             name: product.name,
             quantity: product.quantity,

@@ -4,7 +4,7 @@ const axios = require('axios');
 async function testOrderCreationDebug() {
   console.log('🧪 Testing Order Creation with Debug Logging...\n');
   
-  const baseUrl = 'http://localhost:3001';
+  const baseUrl = 'http://localhost:4000';
   
   try {
     // Test data
