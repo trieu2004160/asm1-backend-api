@@ -27,6 +27,28 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    savedShippingInfo: {
+      fullName: {
+        type: String,
+        required: false,
+      },
+      phone: {
+        type: String,
+        required: false,
+      },
+      address: {
+        type: String,
+        required: false,
+      },
+      city: {
+        type: String,
+        required: false,
+      },
+      postalCode: {
+        type: String,
+        required: false,
+      },
+    },
   },
   {
     timestamps: true,

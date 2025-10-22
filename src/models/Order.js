@@ -79,6 +79,14 @@ const orderSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    paymentUrl: {
+      type: String,
+      default: null,
+    },
+    cancelableUntil: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
