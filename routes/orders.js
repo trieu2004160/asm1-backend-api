@@ -418,8 +418,10 @@ router.post("/payos", auth, async (req, res, next) => {
       try {
         const mockPayOS = new MockPayOS();
         console.log("🎭 Creating MockPayOS payment link for order:", savedOrder._id);
+        console.log("🎭 Order ID type:", typeof savedOrder._id);
+        console.log("🎭 Total amount:", totalAmount);
         
-        paymentResult = await mockPayOS.createPaymentLink({
+        const mockOrderData = {
           orderCode: savedOrder._id, // Use real order ID for mock payment
           amount: totalAmount,
           description: `Đơn hàng #${savedOrder._id.slice(-8)} - ${validatedProducts.length} sản phẩm`,
@@ -430,7 +432,11 @@ router.post("/payos", auth, async (req, res, next) => {
           })),
           returnUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/payment/${savedOrder._id}?payment=success`,
           cancelUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/payment/${savedOrder._id}?payment=cancelled`,
-        });
+        };
+        
+        console.log("🎭 Mock order data:", JSON.stringify(mockOrderData, null, 2));
+        
+        paymentResult = await mockPayOS.createPaymentLink(mockOrderData);
         useMockPayOS = true;
         console.log("✅ MockPayOS payment link created:", paymentResult.checkoutUrl);
       } catch (mockError) {
@@ -441,7 +447,7 @@ router.post("/payos", auth, async (req, res, next) => {
         const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
         paymentResult = {
           success: true,
-          checkoutUrl: `${frontendUrl}/mock-payment/${savedOrder._id}?amount=${totalAmount}&mock=true`,
+          checkoutUrl: `${frontendUrl}/mock-payment/${savedOrder._id}?amount=${totalAmount}`,
           orderCode: `mock_${savedOrder._id}`,
         };
         useMockPayOS = true;
